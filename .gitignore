@@ -1,2 +1,5 @@
-src/NG_APIInfo.as
-NewgroundsAPI.swc
+/src/NG_APIInfo.as
+/NewgroundsAPI.swc
+/bin
+/lib
+/obj
