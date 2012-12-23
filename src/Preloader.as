@@ -23,6 +23,7 @@ package
 	public class Preloader extends MovieClip 
 	{
 		
+		// Preloader background image
 		[Embed(source="../assets/preload_bg.png")] private var preloaderBackground:Class;
 		
 		public function Preloader() 
@@ -43,6 +44,9 @@ package
 			{
 				apiConnector.x = (stage.stageWidth - apiConnector.width) / 2;
 				apiConnector.y = (stage.stageHeight - apiConnector.height) / 2;
+				
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+				stage.align = StageAlign.TOP_LEFT;
 			}
 		}
 		

@@ -9,7 +9,10 @@ package
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
-	[Frame(factoryClass="Preloader")]
+	// Hide the preloader in debug builds, all it does is slow down testing locally
+	CONFIG::release {
+		[Frame(factoryClass="Preloader")]
+	}
 	public class Main extends Sprite 
 	{
 		
@@ -23,7 +26,6 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			addChild(new MedalPopup);
 			addChild(new Game);
 		}
 

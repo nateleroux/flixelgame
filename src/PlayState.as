@@ -4,6 +4,8 @@ package
 	 * ...
 	 * @author Nathan LeRoux
 	 */
+	import com.newgrounds.API;
+	import com.newgrounds.components.MedalPopup;
 	import org.flixel.*;
 	
 	public class PlayState extends FlxState
