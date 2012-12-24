@@ -4,6 +4,8 @@ package
 	 * ...
 	 * @author Nathan LeRoux
 	 */
+	import net.hires.debug.Stats;
+	import org.flixel.FlxG;
 	import org.flixel.FlxGame;
 	import com.newgrounds.*;
 	import com.newgrounds.components.*;
@@ -24,6 +26,12 @@ package
 			medalPopup.alwaysOnTop = "true";
 			
 			addChild(medalPopup);
+			
+			// Reset the globals
+			Globals.Reset();
+			
+			var stats:Stats = new Stats;
+			addChild(new Stats());
 		}
 		
 	}

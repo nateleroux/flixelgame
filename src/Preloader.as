@@ -37,6 +37,9 @@ package
 			apiConnector.className = "Game";
 			apiConnector.apiId = NG_APIInfo.ApiId;
 			apiConnector.encryptionKey = NG_APIInfo.EncryptionKey;
+			apiConnector.redirectOnHostBlocked = true;
+			apiConnector.redirectOnNewVersion = true;
+			apiConnector.movieVersion = NG_APIInfo.GameVersion;
 			addChild(apiConnector);
 			
 			// Center the preloader

@@ -445,14 +445,16 @@ package org.flixel
 				}
 				else
 				{
-					_accumulator += elapsedMS;
+					// this makes stuttering go away
+					/*_accumulator += elapsedMS;
 					if(_accumulator > _maxAccumulation)
 						_accumulator = _maxAccumulation;
-					while(_accumulator >= _step)
-					{
-						step();
+					//while (_accumulator >= _step)
+					while (_accumulator > _step)
+					{*/
+						step();/*
 						_accumulator = _accumulator - _step; 
-					}
+					}*/
 				}
 				
 				FlxBasic._VISIBLECOUNT = 0;
