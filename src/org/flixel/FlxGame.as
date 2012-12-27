@@ -452,8 +452,8 @@ package org.flixel
 					//while (_accumulator >= _step)
 					while (_accumulator > _step)
 					{*/
-						step();/*
-						_accumulator = _accumulator - _step; 
+						step();
+						/*_accumulator = _accumulator - _step; 
 					}*/
 				}
 				

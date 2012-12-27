@@ -14,10 +14,19 @@ package
 	{
 		
 		public var medalPopup:MedalPopup;
+		public static var stats:Stats;
 		
 		public function Game() 
 		{
-			super(320, 240, MenuState, 2, 60, 60);
+			var firstState:Class;
+			CONFIG::release {
+				firstState = MenuState;
+			}
+			CONFIG::debug {
+				firstState = PlayState;
+			}
+			
+			super(320, 240, firstState, 2, 60, 60);
 			
 			// Setup the newgrounds medal popup
 			medalPopup = new MedalPopup;
@@ -30,8 +39,14 @@ package
 			// Reset the globals
 			Globals.Reset();
 			
-			var stats:Stats = new Stats;
-			addChild(new Stats());
+			// Initialize the collision class
+			Collision.init();
+			
+			stats = new Stats;
+			stats.visible = false;
+			addChild(stats);
+			
+			forceDebugger = true;
 		}
 		
 	}
