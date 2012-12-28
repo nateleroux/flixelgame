@@ -269,7 +269,10 @@ package
 			while (true)
 			{
 				// Are we colliding with this tile?
-				if (TileCollide(r, map.Data[tileX + tileY * tileW], (tileX - tileXS) * 16, (tileY - tileYS) * 16))
+				var tileIdx:int = tileX + tileY * tileW;
+				
+				if (tileIdx < map.Data.length &&
+					TileCollide(r, map.Data[tileX + tileY * tileW], (tileX - tileXS) * 16, (tileY - tileYS) * 16))
 					return false;
 				
 				// No collide, move on to the next tile

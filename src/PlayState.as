@@ -61,6 +61,8 @@ package
 				y += speed;
 			
 			dude.TryMove(level, x, y, 5);
+			dude.Sprite.x = Math.min(Math.max(0, dude.Sprite.x), level.width - dude.Sprite.width);
+			dude.Sprite.y = Math.min(Math.max(0, dude.Sprite.y), level.height - dude.Sprite.height);
 			
 			if (FlxG.keys.justPressed("Q"))
 				Game.stats.visible = !Game.stats.visible;
