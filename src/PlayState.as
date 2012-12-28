@@ -51,18 +51,18 @@ package
 			speed = 1;
 			var x:int = 0, y:int = 0;
 		
-			if (FlxG.keys.LEFT)
+			if (FlxG.keys.LEFT || FlxG.keys.A)
 				x -= speed;
-			if (FlxG.keys.RIGHT)
+			if (FlxG.keys.RIGHT || FlxG.keys.D)
 				x += speed;
-			if (FlxG.keys.UP)
+			if (FlxG.keys.UP || FlxG.keys.W)
 				y -= speed;
-			if (FlxG.keys.DOWN)
+			if (FlxG.keys.DOWN || FlxG.keys.S)
 				y += speed;
 			
 			dude.TryMove(level, x, y, 5);
 			
-			if (FlxG.keys.justPressed("D"))
+			if (FlxG.keys.justPressed("Q"))
 				Game.stats.visible = !Game.stats.visible;
 			
 			camera.scroll.x = Math.min(Math.max(0, (dude.Sprite.x + 8) - camera.width / 2), level.width - camera.width);
