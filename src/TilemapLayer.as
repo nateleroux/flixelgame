@@ -11,6 +11,7 @@ package
 	public class TilemapLayer extends FlxBasic
 	{
 		
+		public var Parent:Level;
 		public var Name:String;
 		public var Tileset:String;
 		public var ExportMode:String;
@@ -38,12 +39,13 @@ package
 		private var waterGoal:int;
 		private var waterTile:int;
 		
-		public function TilemapLayer(Name:String, Tileset:String, ExportMode:String, Data:String) 
+		public function TilemapLayer(Name:String, Tileset:String, ExportMode:String, Data:String, Parent:Level) 
 		{
 			this.Name = Name;
 			this.Tileset = Tileset;
 			this.ExportMode = ExportMode;
 			this.Texture = null;
+			this.Parent = Parent;
 			
 			dirty = true;
 			pixelPoint = new Point;
@@ -309,8 +311,8 @@ package
 				sourceRect.width = camera.width;
 				sourceRect.height = camera.height;
 				
-				point.x = 0;
-				point.y = 0;
+				point.x = Parent.offset.x;
+				point.y = Parent.offset.y;
 				
 				point2.x = sourceRect.x;
 				point2.y = sourceRect.y;

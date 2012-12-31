@@ -136,6 +136,14 @@ package
 					 rect.top >= rect2.bottom ||
 					 rect.bottom <= rect2.top);
 		}
+		
+		public static function rectangleTestToPoint(rect:Rectangle, x:int, y:int, point:Point, w:int, h:int) : Boolean
+		{
+			return !(rect.left + x >= point.x + w ||
+					 rect.right + x <= point.x ||
+					 rect.top + y >= point.y + h ||
+					 rect.bottom + y <= point.y);
+		}
 	  
 		public static function triangleTest(rect:Rectangle, vertex0:Point, vertex1:Point, vertex2:Point) : Boolean
 		{
