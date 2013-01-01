@@ -46,7 +46,7 @@ package
 					while (curEntity != null)
 					{
 						entities.push(new LevelEntity(curEntity));
-						curEntity = curLayer.children()[index++];
+						curEntity = curLayer.children()[entIndex++];
 					}
 				}
 				else

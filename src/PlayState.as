@@ -18,6 +18,16 @@ package
 		private var backgroundGroup:FlxGroup;
 		private var objectGroup:FlxGroup;
 		private var foregroundGroup:FlxGroup;
+		
+		// Transition stuff
+		private var scrollingState:int;
+		private var scrollingRemain:int;
+		private var scrollingDelta:int;
+		private var cameraRemain:int;
+		private var cameraDelta:int;
+		private var scrollingCurrent:int;
+		private var scrollingRate:int;
+		
 		[Embed(source = "../assets/Test Sprite.png")] private var testSprite:Class;
 		
 		public function PlayState() 
@@ -44,6 +54,8 @@ package
 			add(backgroundGroup);
 			add(objectGroup);
 			add(foregroundGroup);
+			
+			scrollingState = 0;
 		}
 		
 		private function checkPlayerForTraversal():void
@@ -65,36 +77,61 @@ package
 						var mod:int = transitionObj.Properties["destOffsetX"];
 						dude.Sprite.x += mod;
 						FlxG.camera.scroll.x += mod;
+						level.offset.x += mod;
 						
 						mod = transitionObj.Properties["destOffsetY"];
 						dude.Sprite.y += mod;
 						FlxG.camera.scroll.y += mod;
+						level.offset.y += mod;
 						
-						level.remove(backgroundGroup, foregroundGroup);
+						transitioningLevel = level;
 						level = Globals.LoadLevel(transitionObj.Properties["destination"]);
 						level.add(backgroundGroup, foregroundGroup);
 						
-						// TODO: Scrolling effect
-						// For now, just snap them one tile in the direction they are headed
+						// The total scrolling length is TileWidth/Height * 3
 						switch(transitionObj.Properties["Transition"])
 						{
 							case "ScrollUp":
-								dude.Sprite.y -= Globals.TileHeight * 3;
-								FlxG.camera.scroll.y -= Globals.TileHeight * 3;
+								scrollingState = FlxObject.UP;
+								scrollingRemain = Globals.TileHeight * 3;
+								dude.Sprite.y = dude.Sprite.y + 16 - (dude.Sprite.y % 16);
+								cameraRemain = FlxG.camera.scroll.y -
+									Math.min(Math.max(0, (dude.Sprite.y + 8) - scrollingRemain - FlxG.camera.height / 2),
+												level.height - FlxG.camera.height);
 								break;
 							case "ScrollDown":
-								dude.Sprite.y += Globals.TileHeight * 3;
-								FlxG.camera.scroll.y += Globals.TileHeight * 3;
+								scrollingState = FlxObject.DOWN;
+								scrollingRemain = Globals.TileHeight * 3;
+								dude.Sprite.y = dude.Sprite.y - (dude.Sprite.y % 16) - Globals.TileHeight;
+								cameraRemain =
+									Math.min(Math.max(0, (dude.Sprite.y + 8) - scrollingRemain - FlxG.camera.height / 2),
+												level.height - FlxG.camera.height) - FlxG.camera.scroll.y;
 								break;
 							case "ScrollLeft":
-								dude.Sprite.x -= Globals.TileHeight * 3;
-								FlxG.camera.scroll.x -= Globals.TileHeight * 3;
+								scrollingState = FlxObject.LEFT;
+								scrollingRemain = Globals.TileWidth * 3;
+								dude.Sprite.x = dude.Sprite.x + 16 - (dude.Sprite.x % 16);
+								cameraRemain = FlxG.camera.scroll.x -
+									Math.min(Math.max(0, (dude.Sprite.x + 8) - scrollingRemain - FlxG.camera.width / 2),
+										level.width - FlxG.camera.width);
 								break;
 							case "ScrollRight":
-								dude.Sprite.x += Globals.TileHeight * 3;
-								FlxG.camera.scroll.x += Globals.TileHeight * 3;
+								scrollingState = FlxObject.RIGHT;
+								scrollingRemain = Globals.TileWidth * 3;
+								dude.Sprite.x = dude.Sprite.x - (dude.Sprite.x % 16) - Globals.TileWidth;
+								cameraRemain =
+									Math.min(Math.max(0, (dude.Sprite.x + 8) - scrollingRemain - FlxG.camera.width / 2),
+										level.width - FlxG.camera.width) - FlxG.camera.scroll.x;
 								break;
 						}
+						
+						//scrollingDelta = scrollingRemain / 4;
+						//cameraDelta = cameraRemain / 4;
+						// We scroll 48 units, camera scroll 240 units, if going horiz then we camera scroll 320 units
+						scrollingDelta = 1;
+						cameraDelta = 5;
+						scrollingCurrent = 0;
+						scrollingRate = 0;
 						
 						hasTransitioned = true;
 					}
@@ -102,8 +139,9 @@ package
 			}
 		}
 		
-		override public function update():void 
+		private function gameUpdate():void
 		{
+			// TODO: consider changing walk speed
 			var camera:FlxCamera = FlxG.camera;
 			var speed:Number = 60 * FlxG.elapsed;
 			speed = 1;
@@ -127,13 +165,87 @@ package
 			// Debug stuff
 			if (FlxG.keys.justPressed("Q"))
 				Game.stats.visible = !Game.stats.visible;
-				
-			// Check to see if we are moving to another area
-			checkPlayerForTraversal();
 			
 			// Scroll the camera
 			camera.scroll.x = Math.min(Math.max(0, (dude.Sprite.x + 8) - camera.width / 2), level.width - camera.width);
 			camera.scroll.y = Math.min(Math.max(0, (dude.Sprite.y + 8) - camera.height / 2), level.height - camera.height);
+			
+			// Update the water tiles
+			Globals.UpdateWaterPos();
+			
+			// Check to see if we are moving to another area
+			checkPlayerForTraversal();
+		}
+		
+		private function scrollUpdate():void
+		{
+			var camera:FlxCamera = FlxG.camera;
+			/*
+			var speed:Number = 60 * FlxG.elapsed;
+			speed = 1;
+			var x:int = 0, y:int = 0;
+			
+			// Collect input
+			if (FlxG.keys.LEFT || FlxG.keys.A)
+				x -= speed;
+			if (FlxG.keys.RIGHT || FlxG.keys.D)
+				x += speed;
+			if (FlxG.keys.UP || FlxG.keys.W)
+				y -= speed;
+			if (FlxG.keys.DOWN || FlxG.keys.S)
+				y += speed;
+			
+			camera.scroll.x += x;
+			camera.scroll.y += y;*/
+			
+			scrollingCurrent++;
+			if (scrollingCurrent >= scrollingRate)
+			{
+				scrollingCurrent = 0;
+				
+				if (scrollingDelta > scrollingRemain)
+					scrollingDelta = scrollingRemain;
+				if (cameraDelta > cameraRemain)
+					cameraDelta = cameraRemain;
+				
+				switch(scrollingState)
+				{
+					case FlxObject.UP:
+						dude.Sprite.y -= scrollingDelta;
+						camera.scroll.y -= cameraDelta;
+						break;
+					case FlxObject.DOWN:
+						dude.Sprite.y += scrollingDelta;
+						camera.scroll.y += cameraDelta;
+						break;
+					case FlxObject.LEFT:
+						dude.Sprite.x -= scrollingDelta;
+						camera.scroll.x -= cameraDelta;
+						break;
+					case FlxObject.RIGHT:
+						dude.Sprite.x += scrollingDelta;
+						camera.scroll.x += cameraDelta;
+						break;
+				}
+				
+				scrollingRemain -= scrollingDelta;
+				cameraRemain -= cameraDelta;
+				
+				if (scrollingRemain == 0 && cameraRemain == 0)
+				{
+					transitioningLevel.remove(backgroundGroup, foregroundGroup);
+					transitioningLevel = null;
+					scrollingState = 0;
+				}
+			}
+		}
+		
+		override public function update():void 
+		{
+			if (scrollingState == 0)
+				gameUpdate();
+			else
+				scrollUpdate();
 			
 			super.update();
 		}

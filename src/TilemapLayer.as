@@ -32,11 +32,8 @@ package
 		private var point:Point;
 		private var point2:Point;
 		private var point3:Point;
+		private var cameraPoint:Point;
 		
-		// Animated water
-		private var waterOffset:Point;
-		private var waterCurrent:int;
-		private var waterGoal:int;
 		private var waterTile:int;
 		
 		public function TilemapLayer(Name:String, Tileset:String, ExportMode:String, Data:String, Parent:Level) 
@@ -58,9 +55,7 @@ package
 			point = new Point;
 			point2 = new Point;
 			point3 = new Point;
-			
-			waterOffset = new Point;
-			waterGoal = 30;
+			cameraPoint = new Point;
 			
 			// TODO: change this based on map name, possibly to an array of water tiles
 			waterTile = 5;
@@ -93,37 +88,8 @@ package
 		{
 			// Update function! yay
 			// Lets check which tileset we are, water only exists on 'overworld'
-			if (Tileset == "overworld")
-			{
-				// Well, we are the overworld, so lets animate some water
-				waterCurrent++;
-				
-				if (waterCurrent >= waterGoal)
-				{
-					waterCurrent = 0;
-					
-					// Lets move by a random amount between -2 and 2 pixels! (yes, that means it is lerp time)
-					var moveX:int, moveY:int;
-					moveX = (Math.random() * 4) - 2;
-					moveY = (Math.random() * 4) - 2;
-					
-					if (moveX != 0 || moveY != 0)
-					{
-						waterOffset.x += moveX;
-						waterOffset.y += moveY;
-						
-						waterOffset.x = waterOffset.x % Globals.TileWidth;
-						waterOffset.y = waterOffset.y % Globals.TileHeight;
-						
-						while (waterOffset.x < 0)
-							waterOffset.x += Globals.TileWidth;
-						while (waterOffset.y < 0)
-							waterOffset.y += Globals.TileHeight;
-						
-						dirty = true;
-					}
-				}
-			}
+			if (Tileset == "overworld" && Globals.WaterDirty)
+				dirty = true;
 			
 			super.update();
 		}
@@ -155,7 +121,7 @@ package
 					var tile:int = Data[tileX + tileY * tileW];
 					if (tile != -1)
 					{
-						if (tile == waterTile && (waterOffset.x != 0 || waterOffset.y != 0))
+						if (tile == waterTile && (Globals.WaterOffset.x != 0 || Globals.WaterOffset.y != 0))
 						{
 							// Draw the tile onto the buffer using the clipDraw helper function
 							clipRect.x = x;
@@ -171,23 +137,23 @@ package
 							point.y = y;
 							
 							// Top left
-							point.x = x - Globals.TileWidth + waterOffset.x;
-							point.y = y - Globals.TileHeight + waterOffset.y;
+							point.x = x - Globals.TileWidth + Globals.WaterOffset.x;
+							point.y = y - Globals.TileHeight + Globals.WaterOffset.y;
 							clipDraw(buffer, clipRect, Texture.Texture, sourceRect, point);
 							
 							// Top right
-							point.x = x + waterOffset.x;
-							point.y = y - Globals.TileHeight + waterOffset.y;
+							point.x = x + Globals.WaterOffset.x;
+							point.y = y - Globals.TileHeight + Globals.WaterOffset.y;
 							clipDraw(buffer, clipRect, Texture.Texture, sourceRect, point);
 							
 							// Bottom left
-							point.x = x - Globals.TileWidth + waterOffset.x;
-							point.y = y + waterOffset.y;
+							point.x = x - Globals.TileWidth + Globals.WaterOffset.x;
+							point.y = y + Globals.WaterOffset.y;
 							clipDraw(buffer, clipRect, Texture.Texture, sourceRect, point);
 							
 							// Bottom right
-							point.x = x + waterOffset.x;
-							point.y = y + waterOffset.y;
+							point.x = x + Globals.WaterOffset.x;
+							point.y = y + Globals.WaterOffset.y;
 							clipDraw(buffer, clipRect, Texture.Texture, sourceRect, point);
 						}
 						else
@@ -286,18 +252,20 @@ package
 			while (i < l)
 			{
 				camera = cameras[i];
+				cameraPoint.x = camera.scroll.x - Parent.offset.x;
+				cameraPoint.y = camera.scroll.y - Parent.offset.y;
 				
 				if (!dirty)
-					dirty = (camera.scroll.x < pixelPoint.x) || (camera.scroll.y < pixelPoint.y) ||
-							(camera.scroll.x + camera.width > pixelPoint.x + pixelRect.width) ||
-							(camera.scroll.y + camera.height > pixelPoint.y + pixelRect.height);
+					dirty = (cameraPoint.x < pixelPoint.x) || (cameraPoint.y < pixelPoint.y) ||
+							(cameraPoint.x + camera.width > pixelPoint.x + pixelRect.width) ||
+							(cameraPoint.y + camera.height > pixelPoint.y + pixelRect.height);
 				
 				if (dirty)
 				{
 					dirty = false;
 					
-					pixelPoint.x = camera.scroll.x - Globals.TileWidth;
-					pixelPoint.y = camera.scroll.y - Globals.TileHeight;
+					pixelPoint.x = cameraPoint.x - Globals.TileWidth;
+					pixelPoint.y = cameraPoint.y - Globals.TileHeight;
 					
 					pixelPoint.x -= pixelPoint.x % Globals.TileWidth;
 					pixelPoint.y -= pixelPoint.y % Globals.TileHeight;
@@ -306,13 +274,13 @@ package
 					render(pixels, pixelPoint, camera);
 				}
 				
-				sourceRect.x = camera.scroll.x - pixelPoint.x;
-				sourceRect.y = camera.scroll.y - pixelPoint.y;
+				sourceRect.x = cameraPoint.x - pixelPoint.x;
+				sourceRect.y = cameraPoint.y - pixelPoint.y;
 				sourceRect.width = camera.width;
 				sourceRect.height = camera.height;
 				
-				point.x = Parent.offset.x;
-				point.y = Parent.offset.y;
+				point.x = 0;
+				point.y = 0;
 				
 				point2.x = sourceRect.x;
 				point2.y = sourceRect.y;
