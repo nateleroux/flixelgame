@@ -125,8 +125,6 @@ package
 								break;
 						}
 						
-						//scrollingDelta = scrollingRemain / 4;
-						//cameraDelta = cameraRemain / 4;
 						// We scroll 48 units, camera scroll 240 units, if going horiz then we camera scroll 320 units
 						scrollingDelta = 1;
 						cameraDelta = 5;
@@ -144,7 +142,7 @@ package
 			// TODO: consider changing walk speed
 			var camera:FlxCamera = FlxG.camera;
 			var speed:Number = 60 * FlxG.elapsed;
-			speed = 1;
+			speed = FlxG.keys.SHIFT ? 2 : 1;
 			var x:int = 0, y:int = 0;
 			
 			// Collect input

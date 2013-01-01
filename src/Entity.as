@@ -22,7 +22,7 @@ package
 			Sprite = Image;
 		}
 		
-		public function TryMove(level:Level, x:int, y:int, maxCornerSliding:int = 0, ignoreDirection:Boolean = false):Boolean
+		private function DoMove(level:Level, x:int, y:int, maxCornerSliding:int = 0, ignoreDirection:Boolean = false):Boolean
 		{
 			// Are we even moving?
 			if (x == 0 && y == 0)
@@ -178,6 +178,40 @@ package
 					yD = -yD;
 					maxCornerSliding = slide;
 				}
+			}
+			
+			return moved;
+		}
+		
+		public function TryMove(level:Level, x:int, y:int, maxCornerSliding:int = 0, ignoreDirection:Boolean = false):Boolean
+		{
+			var moved:Boolean = false;
+			var mx:int, my:int;
+			
+			if (x < 0)
+				mx = -1;
+			else
+				mx = 1;
+			
+			if (y < 0)
+				my = -1;
+			else
+				my = 1;
+			
+			while (x != 0 || y != 0)
+			{
+				if (DoMove(level, x ? mx : 0, y ? my : 0, maxCornerSliding, ignoreDirection))
+					moved = true;
+				
+				if (x > 0)
+					x--;
+				else if (x < 0)
+					x++;
+				
+				if (y > 0)
+					y--;
+				else if (y < 0)
+					y++;
 			}
 			
 			return moved;
